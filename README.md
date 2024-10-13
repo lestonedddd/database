@@ -1,5 +1,14 @@
-# database
-##HW1
+# 台師大科技系 資料庫系統
+授課教師：蔡芸琤老師
 
-[HW1 yt video]((https://youtu.be/vwFA1Zo8GdY))
-[HW1 YT video]((https://youtu.be/vwFA1Zo8GdY))
+姓名：黃裕實   
+
+系級：車能系3年級  
+
+## 作業連結區  
+### Hw1
+[HW1 app.py code](https://github.com/lestonedddd/database/blob/main/app.py)<br>
+[HW1 sql code](https://github.com/lestonedddd/database/blob/main/HW1.sql)<br>
+[HW1 html code](https://github.com/PanYingHan/Database/blob/main/index.html)<br>
+[HW1 yt video](https://youtu.be/vwFA1Zo8GdY)
+[HW1 YT video](https://youtu.be/vwFA1Zo8GdY)
