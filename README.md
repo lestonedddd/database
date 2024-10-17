@@ -11,5 +11,5 @@
 [HW1 sql code](https://github.com/lestonedddd/database/blob/main/HW1.sql)<br>
 [HW1 html code](https://github.com/lestonedddd/database/blob/main/index.html)<br>
 [HW1 html code](https://github.com/lestonedddd/database/blob/main/add.html     )<br>
-[HW1 yt video](https://youtu.be/vwFA1Zo8GdY)
-[HW1 YT video](https://youtu.be/vwFA1Zo8GdY)
+[HW1 yt video](https://youtu.be/A3A3ZbQJy3E)
+[HW1 YT video](https://youtu.be/A3A3ZbQJy3E)
