@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Player Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Player Statistics</h1>
+
+
+    {% if statistics %}
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>Points</th>
+                <th>Rebounds</th>
+                <th>Assists</th>
+                <th>Turnovers</th>
+                <th>Minutes</th>
+                <th>Date</th>
+                <th>Action</th>
+            </tr>
+            {% for stat in statistics %}
+            <tr>
+                <td>{{ stat.name }}</td>
+                <td>{{ stat.points }}</td>
+                <td>{{ stat.rebounds }}</td>
+                <td>{{ stat.assists }}</td>
+                <td>{{ stat.turnovers }}</td>
+                <td>{{ stat.minutes }}</td>
+                <td>{{ stat.date }}</td>
+                <td>
+                    <a href="{{ url_for('edit_statistics', stat_id=stat.stat_id) }}">Edit</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    {% else %}
+        <p>No statistics available.</p>
+    {% endif %}
+</body>
+</html>

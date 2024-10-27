@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Basketball Stats</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+</head>
+<body>
+    <h1>Basketball Player Stats</h1>
+    
+
+    
+    <h2>Players</h2>
+    <a href="{{ url_for('add_player') }}">Add Player</a>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Position</th>
+            <th>Actions</th>
+        </tr>
+        {% if players %}
+            {% for player in players %}
+            <tr>
+                <td>{{ player['name'] }}</td>
+                <td>{{ player['position'] }}</td>
+                <td>
+                    <form action="{{ url_for('delete_player', id=player['player_id']) }}" method="post" style="display:inline;">
+                        <button type="submit">Delete</button>
+                    </form>
+                    <a href="{{ url_for('update_player', id=player['player_id']) }}">Update</a>
+                </td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="3">No players available.</td>
+            </tr>
+        {% endif %}
+    </table>
+
+    <h2>Statistics</h2>
+    <table border="1">
+        <tr>
+            <th>Name</th>
+            <th>Points</th>
+            <th>Rebounds</th>
+            <th>Assists</th>
+            <th>Turnovers</th>
+            <th>Minutes</th>
+            <th>Date</th>
+        </tr>
+        {% if stats %}
+            {% for stat in stats %}
+            <tr>
+                <td>{{ stat['name'] }}</td>
+                <td>{{ stat['points'] }}</td>
+                <td>{{ stat['rebounds'] }}</td>
+                <td>{{ stat['assists'] }}</td>
+                <td>{{ stat['turnovers'] }}</td>
+                <td>{{ stat['minutes'] }}</td>
+                <td>{{ stat['date'] }}</td>
+            </tr>
+            {% endfor %}
+        {% else %}
+            <tr>
+                <td colspan="7">No statistics available.</td>
+            </tr>
+        {% endif %}
+    </table>
+</body>
+</html>

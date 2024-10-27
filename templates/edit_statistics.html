@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+ 
+
+    <h1>Edit Statistics</h1>
+    <form method="POST">
+        <label for="points">Points:</label>
+        <input type="number" name="points" value="{{ stat.points }}" required>
+        
+        <label for="rebounds">Rebounds:</label>
+        <input type="number" name="rebounds" value="{{ stat.rebounds }}" required>
+        
+        <label for="assists">Assists:</label>
+        <input type="number" name="assists" value="{{ stat.assists }}" required>
+        
+        <label for="turnovers">Turnovers:</label>
+        <input type="number" name="turnovers" value="{{ stat.turnovers }}" required>
+        
+        <label for="minutes">Minutes:</label>
+        <input type="number" name="minutes" value="{{ stat.minutes }}" required>
+
+        <button type="submit">Update</button>
+    </form>
+</body>
+</html>
