@@ -13,7 +13,7 @@
 [HW1 html code](https://github.com/lestonedddd/database/blob/main/add.html     )<br>
 [HW1 yt video](https://youtu.be/A3A3ZbQJy3E)<br>
 [HW1 YT video](https://youtu.be/A3A3ZbQJy3E)
-### Hw1
-[HW1 yt video](https://youtu.be/WRxgGbOrROU)<br>
-[HW1 YT video](https://youtu.be/WRxgGbOrROU)<br>
-[HW1 app.py code](https://github.com/lestonedddd/database/blob/main/app.py)<br>
+### Hw2
+[HW2 yt video](https://youtu.be/WRxgGbOrROU)<br>
+[HW2 YT video](https://youtu.be/WRxgGbOrROU)<br>
+[HW2 app.py code](https://github.com/lestonedddd/database/blob/main/app.py)<br>
