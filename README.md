@@ -17,3 +17,4 @@
 [HW2 yt video](https://youtu.be/WRxgGbOrROU)<br>
 [HW2 YT video](https://youtu.be/WRxgGbOrROU)<br>
 [HW2 app.py code](https://github.com/lestonedddd/database/blob/main/app.py)<br>
+[ER diagram]()
