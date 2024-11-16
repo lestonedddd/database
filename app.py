@@ -1,32 +1,105 @@
-from flask import Flask, jsonify, request, render_template
-from flask_pymongo import PyMongo
-from flask_cors import CORS
+# app.py
+from flask import Flask, render_template, request, redirect, url_for
+import mysql.connector
 
 app = Flask(__name__)
-CORS(app)  # 解決跨域問題
 
-# 配置 MongoDB
-app.config["MONGO_URI"] = "mongodb://localhost:27017/employees_db"
-mongo = PyMongo(app)
-db = mongo.db
+# MySQL 配置
+db_config = {
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'Password0206!',
+    'database': 'restaurant_db'
+}
 
-# 首頁路由
-@app.route("/")
+# 創建數據庫連接
+def get_db_connection():
+    return mysql.connector.connect(**db_config)
+
+# 創建資料表（首次運行時使用）
+def create_table():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS restaurants (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            rating INT NOT NULL,
+            price INT NOT NULL
+        )
+    ''')
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+# 首頁路由 - 顯示表單和現有數據
+@app.route('/')
 def index():
-    return render_template("index.html")
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    cursor.execute('SELECT * FROM restaurants')
+    restaurants = cursor.fetchall()
+    cursor.close()
+    conn.close()
+    return render_template('index.html', restaurants=restaurants)
 
-# 獲取所有員工資料
-@app.route("/api/employees", methods=["GET"])
-def get_employees():
-    employees = list(db.employees.find({}, {"_id": 0}))  # 不返回 _id
-    return jsonify(employees)
+# 添加餐廳
+@app.route('/add', methods=['POST'])
+def add_restaurant():
+    name = request.form['name']
+    rating = request.form['rating']
+    price = request.form['price']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO restaurants (name, rating, price) VALUES (%s, %s, %s)',
+                  (name, rating, price))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('index'))
 
-# 新增員工
-@app.route("/api/employees", methods=["POST"])
-def add_employee():
-    data = request.json
-    db.employees.insert_one(data)
-    return jsonify({"message": "Employee added successfully"}), 201
+# 更新餐廳
+@app.route('/update/<int:id>', methods=['POST'])
+def update_restaurant(id):
+    name = request.form['name']
+    rating = request.form['rating']
+    price = request.form['price']
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('UPDATE restaurants SET name=%s, rating=%s, price=%s WHERE id=%s',
+                  (name, rating, price, id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('index'))
 
-if __name__ == "__main__":
+# 刪除餐廳
+@app.route('/delete/<int:id>')
+def delete_restaurant(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM restaurants WHERE id=%s', (id,))
+    conn.commit()
+    cursor.close()
+    conn.close()
+    return redirect(url_for('index'))
+
+# 顯示統計數據
+@app.route('/join')
+def join():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+    
+    cursor.execute('SELECT name, rating, price FROM restaurants')
+    restaurants = cursor.fetchall()
+    
+    cursor.close()
+    conn.close()
+    
+    return render_template('join.html', restaurants=restaurants)
+
+if __name__ == '__main__':
+    create_table()
     app.run(debug=True)
