@@ -1,15 +1,53 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Users List</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <h1>Users</h1>
-    <ul>
-        {% for user in users %}
-        <li>{{ user[1] }} - Email: {{ user[2] }} - Position: {{ user[3] }} - Major: {{ user[4] }}</li>
-        {% endfor %}
-    </ul>
-    <a href="/add">Add a New User</a>
+    <h1>Employee Management</h1>
+
+    <form id="employeeForm">
+        <input type="text" id="name" placeholder="Name" required />
+        <input type="text" id="position" placeholder="Position" required />
+        <input type="number" id="salary" placeholder="Salary" required />
+        <button type="submit">Add Employee</button>
+    </form>
+
+    <div id="employeeList"></div>
+
+    <script>
+        const form = document.getElementById("employeeForm");
+        const employeeList = document.getElementById("employeeList");
+
+        // 新增員工
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("name").value;
+            const position = document.getElementById("position").value;
+            const salary = document.getElementById("salary").value;
+
+            await fetch("/api/employees", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name, position, salary }),
+            });
+
+            loadEmployees();
+        });
+
+        // 載入所有員工
+        async function loadEmployees() {
+            const response = await fetch("/api/employees");
+            const employees = await response.json();
+            employeeList.innerHTML = employees
+                .map(emp => `<p>${emp.name} - ${emp.position} - $${emp.salary}</p>`)
+                .join("");
+        }
+
+        loadEmployees();
+    </script>
 </body>
 </html>
