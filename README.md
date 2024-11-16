@@ -19,6 +19,6 @@
 [HW2 app.py code](https://github.com/lestonedddd/database/blob/main/app.py)<br>
 [ER diagram](https://github.com/lestonedddd/database/blob/main/Screenshot%202024-11-07%20at%2011-01-29%20DiagramGPT%20Free%20AI%20Diagram%20Generator%20-%20Create%20Diagrams%20from%20Text%20in%20Seconds.png)
 ### Hw3
-[HW3 yt video](https://youtu.be/WRxgGbOrROU)<br>
-[HW3 YT video](https://youtu.be/WRxgGbOrROU)<br>
+[HW3 yt video](https://youtu.be/GJRXAYgAgmg)<br>
+[HW3 YT video](https://youtu.be/GJRXAYgAgmg)<br>
 [HW3 app.py code](https://github.com/lestonedddd/database/blob/main/app.py)<br>
