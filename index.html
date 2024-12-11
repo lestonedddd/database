@@ -1,53 +1,76 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Management</title>
-    <link rel="stylesheet" href="/static/style.css">
+    <title>員工管理系統</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <h1>Employee Management</h1>
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h1>員工管理系統</h1>
+        </div>
+        <div class="col-md-6 text-end">
+            <a href="{{ url_for('add_employee') }}" class="btn btn-primary me-2">新增員工</a>
+        </div>
+    </div>
 
-    <form id="employeeForm">
-        <input type="text" id="name" placeholder="Name" required />
-        <input type="text" id="position" placeholder="Position" required />
-        <input type="number" id="salary" placeholder="Salary" required />
-        <button type="submit">Add Employee</button>
+    <!-- 搜尋欄位 -->
+    <form action="{{ url_for('search_employee') }}" method="POST" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="search_term" class="form-control" 
+                   placeholder="搜尋員工(姓名/職位/公司)" 
+                   value="{{ search_term if search_term is defined else '' }}">
+            <button class="btn btn-outline-secondary" type="submit">搜尋</button>
+        </div>
     </form>
 
-    <div id="employeeList"></div>
+    <!-- 訊息提示 -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ 'success' if category == 'success' else 'danger' }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-    <script>
-        const form = document.getElementById("employeeForm");
-        const employeeList = document.getElementById("employeeList");
+    <!-- 員工列表 -->
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>姓名</th>
+                    <th>職位</th>
+                    <th>公司單位</th>
+                    <th>電話</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for employee in employees %}
+                <tr>
+                    <td>{{ employee.name }}</td>
+                    <td>{{ employee.position }}</td>
+                    <td>{{ employee.company }}</td>
+                    <td>{{ employee.phone }}</td>
+                    <td>
+                        <a href="{{ url_for('edit_employee', employee_id=employee._id) }}" 
+                           class="btn btn-sm btn-warning me-1">編輯</a>
+                        <a href="{{ url_for('delete_employee', employee_id=employee._id) }}" 
+                           class="btn btn-sm btn-danger" 
+                           onclick="return confirm('確定要刪除此員工嗎？')">刪除</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-        // 新增員工
-        form.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const name = document.getElementById("name").value;
-            const position = document.getElementById("position").value;
-            const salary = document.getElementById("salary").value;
-
-            await fetch("/api/employees", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name, position, salary }),
-            });
-
-            loadEmployees();
-        });
-
-        // 載入所有員工
-        async function loadEmployees() {
-            const response = await fetch("/api/employees");
-            const employees = await response.json();
-            employeeList.innerHTML = employees
-                .map(emp => `<p>${emp.name} - ${emp.position} - $${emp.salary}</p>`)
-                .join("");
-        }
-
-        loadEmployees();
-    </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

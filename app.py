@@ -1,105 +1,126 @@
-# app.py
-from flask import Flask, render_template, request, redirect, url_for
-import mysql.connector
+from flask import Flask, render_template, request, redirect, url_for, flash
+from pymongo import MongoClient
+from bson.objectid import ObjectId
 
 app = Flask(__name__)
+app.secret_key = 'your_secret_key_here'  # 用於 flash 消息
 
-# MySQL 配置
-db_config = {
-    'host': 'localhost',
-    'user': 'root',
-    'password': 'Password0206!',
-    'database': 'restaurant_db'
-}
+# MongoDB 連接
+try:
+    client = MongoClient('mongodb://localhost:27017/', serverSelectionTimeoutMS=5000)
+    db = client['sign_in_system']
+    collection = db['employees']
+    client.server_info()  # 測試連接是否成功
+except Exception as e:
+    print(f"無法連接到 MongoDB: {e}")
+    exit(1)
 
-# 創建數據庫連接
-def get_db_connection():
-    return mysql.connector.connect(**db_config)
-
-# 創建資料表（首次運行時使用）
-def create_table():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS restaurants (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            name VARCHAR(100) NOT NULL,
-            rating INT NOT NULL,
-            price INT NOT NULL
-        )
-    ''')
-    conn.commit()
-    cursor.close()
-    conn.close()
-
-# 首頁路由 - 顯示表單和現有數據
+# 首頁：顯示員工列表
 @app.route('/')
 def index():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    cursor.execute('SELECT * FROM restaurants')
-    restaurants = cursor.fetchall()
-    cursor.close()
-    conn.close()
-    return render_template('index.html', restaurants=restaurants)
+    try:
+        employees = list(collection.find())
+        return render_template('index.html', employees=employees)
+    except Exception as e:
+        flash(f'獲取員工列表時發生錯誤: {e}', 'error')
+        return render_template('index.html', employees=[])
 
-# 添加餐廳
-@app.route('/add', methods=['POST'])
-def add_restaurant():
-    name = request.form['name']
-    rating = request.form['rating']
-    price = request.form['price']
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('INSERT INTO restaurants (name, rating, price) VALUES (%s, %s, %s)',
-                  (name, rating, price))
-    conn.commit()
-    cursor.close()
-    conn.close()
+# 搜索員工
+@app.route('/search_employee', methods=['GET', 'POST'])
+def search_employee():
+    if request.method == 'POST':
+        search_query = request.form.get('query', '').strip()
+        if search_query:
+            try:
+                # 在 MongoDB 中搜索匹配名稱的員工
+                employees = list(collection.find({'name': {'$regex': search_query, '$options': 'i'}}))
+                if employees:
+                    flash(f'找到 {len(employees)} 位符合條件的員工！', 'success')
+                else:
+                    flash('沒有找到符合條件的員工。', 'warning')
+                return render_template('index.html', employees=employees)
+            except Exception as e:
+                flash(f'搜索員工時發生錯誤: {e}', 'error')
+        else:
+            flash('搜索條件不能為空！', 'warning')
     return redirect(url_for('index'))
 
-# 更新餐廳
-@app.route('/update/<int:id>', methods=['POST'])
-def update_restaurant(id):
-    name = request.form['name']
-    rating = request.form['rating']
-    price = request.form['price']
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('UPDATE restaurants SET name=%s, rating=%s, price=%s WHERE id=%s',
-                  (name, rating, price, id))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return redirect(url_for('index'))
+# 添加員工
+@app.route('/add', methods=['GET', 'POST'])
+def add_employee():
+    if request.method == 'POST':
+        name = request.form.get('name', '').strip()
+        position = request.form.get('position', '').strip()
+        company = request.form.get('company', '').strip()
+        phone = request.form.get('phone', '').strip()
 
-# 刪除餐廳
-@app.route('/delete/<int:id>')
-def delete_restaurant(id):
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute('DELETE FROM restaurants WHERE id=%s', (id,))
-    conn.commit()
-    cursor.close()
-    conn.close()
-    return redirect(url_for('index'))
+        if not name or not position or not company or not phone:
+            flash('所有欄位均為必填！', 'warning')
+            return render_template('add.html')
 
-# 顯示統計數據
-@app.route('/join')
-def join():
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    
-    cursor.execute('SELECT name, rating, price FROM restaurants')
-    restaurants = cursor.fetchall()
-    
-    cursor.close()
-    conn.close()
-    
-    return render_template('join.html', restaurants=restaurants)
+        try:
+            collection.insert_one({
+                'name': name,
+                'position': position,
+                'company': company,
+                'phone': phone
+            })
+            flash('員工添加成功！', 'success')
+            return redirect(url_for('index'))
+        except Exception as e:
+            flash(f'添加員工時發生錯誤: {e}', 'error')
+
+    return render_template('add.html')
+
+# 編輯員工
+@app.route('/edit/<employee_id>', methods=['GET', 'POST'])
+def edit_employee(employee_id):
+    try:
+        employee = collection.find_one({'_id': ObjectId(employee_id)})
+        if not employee:
+            flash('未找到該員工。', 'warning')
+            return redirect(url_for('index'))
+
+        if request.method == 'POST':
+            name = request.form.get('name', '').strip()
+            position = request.form.get('position', '').strip()
+            company = request.form.get('company', '').strip()
+            phone = request.form.get('phone', '').strip()
+
+            if not name or not position or not company or not phone:
+                flash('所有欄位均為必填！', 'warning')
+                return render_template('edit.html', employee=employee)
+
+            collection.update_one({'_id': ObjectId(employee_id)}, {
+                '$set': {
+                    'name': name,
+                    'position': position,
+                    'company': company,
+                    'phone': phone
+                }
+            })
+            flash('員工資料更新成功！', 'success')
+            return redirect(url_for('index'))
+
+        return render_template('edit.html', employee=employee)
+
+    except Exception as e:
+        flash(f'編輯員工時發生錯誤: {e}', 'error')
+        return redirect(url_for('index'))
+
+# 刪除員工
+@app.route('/delete/<employee_id>')
+def delete_employee(employee_id):
+    try:
+        result = collection.delete_one({'_id': ObjectId(employee_id)})
+        if result.deleted_count > 0:
+            flash('員工刪除成功！', 'success')
+        else:
+            flash('未找到該員工。', 'warning')
+    except Exception as e:
+        flash(f'刪除員工時發生錯誤: {e}', 'error')
+
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
-    create_table()
     app.run(debug=True)
